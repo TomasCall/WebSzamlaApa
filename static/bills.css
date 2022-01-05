@@ -1,0 +1,58 @@
+body{
+    background-image: url("./bg.jpg");
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    overflow-x: hidden;
+}
+table
+{
+ background-color: white;
+ max-height: 5%;
+ text-align:center;
+ table-layout: fixed;
+}
+thead
+{
+    table-layout:fixed;
+    background-color: rgb(13, 110, 253);
+    color: white;
+    font-size: 92%;
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+td
+{
+    font-size: 80%;
+    display: table-cell;
+}
+
+.container
+{
+    margin-top: 5%;
+}
+
+tbody
+{   display:block;
+    max-height:450px;
+    overflow-y:scroll;
+}
+
+
+tr
+{ 
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+
+.data-manupalitation
+{
+    margin-top: 3%;
+}
+
+.datas
+{
+    margin-top: 3%;
+}

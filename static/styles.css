@@ -1,0 +1,29 @@
+#myform{
+    display: block;
+
+    justify-content: center;
+  
+    align-items: center;
+  
+    opacity: 0.9;
+
+    margin-top: 10%;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+.items{
+    margin-left: 38%;
+    margin-right: 50%;
+    margin-top: 5%;
+}
+
+body{
+    background-image: url("./bg.jpg");
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+}
+
+.my-backgroundcolor-nav{
+    background-color:#3366cc;
+}
