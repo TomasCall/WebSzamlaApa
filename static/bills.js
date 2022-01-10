@@ -28,7 +28,13 @@ function getLine(line)
     {
         document.getElementById("Teljesitve").checked=false;
     }
-
+    if(list[6] != "None")
+    {
+        document.getElementById("Befizetes").value=list[6];
+    }
+    else{
+        document.getElementById("Befizetes").value="";
+    }
     let userInfo = {
         "global_id":global_id,
     }

@@ -21,7 +21,6 @@
                 <a class="btn btn-primary" href="http://127.0.0.1:5000/companies">Cégek</a>
               </li>
           </ul>
-          <a class="btn btn-primary mright" href="http://127.0.0.1:5000/logout">Kijelentkezés</a>
         </div>
       </div>
     </nav>
@@ -40,6 +39,7 @@
                   <th scope="col">Kiállítás</th>
                   <th scope="col">Határidő</th>
                   <th scope="col">Teljesítve</th>
+                  <th scope="col">Befizetés dátuma</th>
                 </tr>
               </thead>
               <tbody>
@@ -52,7 +52,8 @@
                     <td>{{userDetails[i][2]}}</td>
                     <td>{{userDetails[i][3]}}</td>
                     <td>{{userDetails[i][4]}}</td>
-                   <td>{{userDetails[i][5]}}</td>
+                    <td>{{userDetails[i][5]}}</td>
+                    <td>{{userDetails[i][6]}}</td>
                   </tr>
                   {% elif userDetails[i][4].strftime('%Y-%m-%d')>today and userDetails[i][5]==0 %}
                   <tr class="bg-warning p-2 text-white"  onclick="getLine({{i+1}})">
@@ -63,6 +64,7 @@
                     <td>{{userDetails[i][3]}}</td>
                     <td>{{userDetails[i][4]}}</td>
                     <td>{{userDetails[i][5]}}</td>
+                    <td>{{userDetails[i][6]}}</td>
                   </tr>
                   {% elif userDetails[i][4].strftime('%Y-%m-%d') <=today and userDetails[i][5]==0 %}
                   <tr class="bg-danger p-2 text-white"  onclick="getLine({{i+1}})">
@@ -73,6 +75,7 @@
                     <td>{{userDetails[i][3]}}</td>
                     <td>{{userDetails[i][4]}}</td>
                     <td>{{userDetails[i][5]}}</td>
+                    <td>{{userDetails[i][6]}}</td>
                   </tr>
                   {% endif %}
                 {% endfor %}
@@ -101,6 +104,10 @@
         <div class="mb-3">
           <label for="Hatarido" class="form-label text-white">Határidő</label>
           <input type="date" class="form-control" id="Hatarido" name="Hatarido">
+        </div>
+        <div class="mb-3">
+          <label for="Befizetes" class="form-label text-white">Befizetés</label>
+          <input type="date" class="form-control" id="Befizetes" name="Befizetes">
         </div>
         <div class="mb-3">
           <label for="Teljesitve" class="form-label text-white">Teljesitve</label>

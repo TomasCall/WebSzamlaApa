@@ -19,7 +19,6 @@
                 <a class="btn btn-primary" href="http://127.0.0.1:5000/companies">Cégek</a>
               </li>
           </ul>
-          <a class="btn btn-primary mright" href="http://127.0.0.1:5000/logout">Kijelentkezés</a>
         </div>
       </div>
   </nav>
@@ -31,7 +30,12 @@
     </div>
     <div class="mb-3">
         <label for="Megrendeloneve" class="form-label text-white">Megrendelő neve</label>
-        <input type="text" class="form-control" id="Megrendeloneve" name="Megrendeloneve">
+        <input type="text" class="form-control" id="Megrendeloneve" name="Megrendeloneve" list="productName">
+        <datalist id="productName">
+          {% for i in names %}
+            <option value="{{i[0]}}"></option>
+          {% endfor %}
+        </datalist>
     </div>
     <div class="mb-3">
       <label for="Osszeg" class="form-label text-white">Összeg</label>

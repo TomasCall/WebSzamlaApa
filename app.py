@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime,date
 import MySQLdb
 from flask import Flask, render_template, request, redirect,session
 from flask.helpers import url_for
@@ -36,21 +36,25 @@ def bills_insert():
         deadline = bill_details["Hatarido"]
         try:
             cursor = mysql.connection.cursor()
-            cursor.execute(f"INSERT INTO adatok(szam, nev, osszeg, kiallitas, hatarido, teljesitve) VALUES(\"{bills_id}\",{amount},\"{costumer_name}\",\"{begining}\",\"{deadline}\",\"False\")")
+            cursor.execute(f"INSERT INTO adatok(szam, nev, osszeg, kiallitas, hatarido, teljesitve) VALUES(\"{bills_id}\",\"{costumer_name}\",{amount},\"{begining}\",\"{deadline}\",\"False\")")
             mysql.connection.commit()
             cursor.close()
             return redirect(url_for("bills_insert"))
         except:
             return redirect(url_for("bills_insert"))
     else:
-        return render_template("bills_insert.html")
+        cursor = mysql.connection.cursor()
+        cursor.execute(f"SELECT nev from adatok")
+        names = cursor.fetchall()
+        cursor.close()
+        return render_template("bills_insert.html",names=names)
 
 
 @app.route("/bills", methods=["GET", "POST"])
 def bills():
     if request.method == "GET":
         cur = mysql.connection.cursor()
-        resultValue = cur.execute(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve FROM adatok order by teljesitve,szam")
+        resultValue = cur.execute(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok order by teljesitve,szam")
         if resultValue>0:
             userDetails = cur.fetchall()
             line_number = len(userDetails)
@@ -65,7 +69,8 @@ def bills():
             if request.form.get("Teljesitve") != None:
                 checked = 1
             try:
-                command = f"UPDATE adatok SET szam='{request.form['Szamlaszam']}', osszeg={request.form['Osszeg']}, nev='{request.form['Megrendeloneve']}', kiallitas='{request.form['Kiallitas']}', hatarido='{request.form['Hatarido']}', teljesitve='{checked}' WHERE szamlaszam='{global_id}'"
+                command = f"UPDATE adatok SET szam='{request.form['Szamlaszam']}', nev='{request.form['Megrendeloneve']}', osszeg={request.form['Osszeg']},  kiallitas='{request.form['Kiallitas']}', hatarido='{request.form['Hatarido']}', teljesitve='{checked}', befizetes='{request.form['Befizetes']}' WHERE szam='{global_id}'"
+                print(request.form['Befizetes'])
                 cur.execute(command)
                 mysql.connection.commit()
                 cur.close()
