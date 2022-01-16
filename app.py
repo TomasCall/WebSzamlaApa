@@ -27,20 +27,21 @@ def index():
 
 @app.route("/bills_insert",methods=["GET","POST"])
 def bills_insert():
-    if request.method == "POST" and "loggedin" in session and request.form["Szamlaszam"] != "" and  request.form["Megrendeloneve"] != "" and request.form["Osszeg"] != None and request.form["begining"] != "" and  request.form["Hatarido"] != "":
+    if request.method == "POST" and "loggedin" in session and request.form["Szamlaszam"] != "" and  request.form["Megrendeloneve"] != "" and request.form["Osszeg"] != None and request.form["Kieallitas"] != "" and  request.form["Hatarido"] != "":
         bill_details = request.form
         bills_id = bill_details["Szamlaszam"]
         costumer_name = bill_details["Megrendeloneve"]
         amount = bill_details["Osszeg"]
-        begining = bill_details["begining"]
+        begining = bill_details["Kiallitas"]
         deadline = bill_details["Hatarido"]
         try:
             cursor = mysql.connection.cursor()
-            cursor.execute(f"INSERT INTO adatok(szam, nev, osszeg, kiallitas, hatarido, teljesitve) VALUES(\"{bills_id}\",\"{costumer_name}\",{amount},\"{begining}\",\"{deadline}\",\"False\")")
+            cursor.execute(f"INSERT INTO adatok(szam, nev, osszeg, kiallitas, hatarido, teljesitve) VALUES('{bills_id}','{costumer_name}',{amount},'{begining}','{deadline}','False')")
             mysql.connection.commit()
             cursor.close()
             return redirect(url_for("bills_insert"))
         except:
+            print("WTF")
             return redirect(url_for("bills_insert"))
     else:
         cursor = mysql.connection.cursor()
