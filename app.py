@@ -27,13 +27,14 @@ def index():
 
 @app.route("/bills_insert",methods=["GET","POST"])
 def bills_insert():
-    if request.method == "POST" and "loggedin" in session and request.form["Szamlaszam"] != "" and  request.form["Megrendeloneve"] != "" and request.form["Osszeg"] != None and request.form["Kieallitas"] != "" and  request.form["Hatarido"] != "":
+    if request.method == "POST" and request.form["Szamlaszam"] != "" and  request.form["Megrendeloneve"] != "" and request.form["Osszeg"] != None and request.form["begining"] != "" and  request.form["Hatarido"] != "":
         bill_details = request.form
         bills_id = bill_details["Szamlaszam"]
         costumer_name = bill_details["Megrendeloneve"]
         amount = bill_details["Osszeg"]
-        begining = bill_details["Kiallitas"]
+        begining = bill_details["begining"]
         deadline = bill_details["Hatarido"]
+        print(f"INSERT INTO adatok(szam, nev, osszeg, kiallitas, hatarido, teljesitve) VALUES('{bills_id}','{costumer_name}',{amount},'{begining}','{deadline}','False')")
         try:
             cursor = mysql.connection.cursor()
             cursor.execute(f"INSERT INTO adatok(szam, nev, osszeg, kiallitas, hatarido, teljesitve) VALUES('{bills_id}','{costumer_name}',{amount},'{begining}','{deadline}','False')")
@@ -41,7 +42,6 @@ def bills_insert():
             cursor.close()
             return redirect(url_for("bills_insert"))
         except:
-            print("WTF")
             return redirect(url_for("bills_insert"))
     else:
         cursor = mysql.connection.cursor()
@@ -89,7 +89,8 @@ def companies():
     print(now)
     now_str = str(int(now))+"-01-01"
     next_str = str(int(now)+1)+"-01-01"
-    resultValue = cur.execute(f"SELECT nev,sum(osszeg) From adatok where kiallitas between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
+    print(next_str)
+    resultValue = cur.execute(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
     if resultValue>0:
         userDetails = cur.fetchall()
         line_number = range(len(userDetails)+1)[-1]
