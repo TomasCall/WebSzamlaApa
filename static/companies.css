@@ -45,3 +45,17 @@ table tbody tr
     width:100%; 
     table-layout:fixed; 
 }
+
+#my-select{
+    width: 200px;
+    display: inline;
+    justify-content: center;
+  
+    align-items: center;
+  
+    opacity: 0.9;
+
+    margin-top: 2%;
+    margin-left: 0;
+    margin-right: 0%;
+}

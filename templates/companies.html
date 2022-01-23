@@ -26,7 +26,20 @@
       </div>
     </nav>
 
+
     <div class="container">
+      <form method="POST" action="/companies">
+        <select id="my-select" name="a" class="form-select" aria-label="Default select example">
+          {% for i in years %}
+            {% if i == now %}
+              <option selected value="{{i}}">{{i}}</option>
+            {% else %}
+              <option value="{{i}}">{{i}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Mentés</button>
+      </form>
       <div class="row">
         <div class="datas table-responsive">
             <table class="table table-hover tablecenterheadCSS" id="table">

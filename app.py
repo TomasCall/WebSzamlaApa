@@ -71,7 +71,6 @@ def bills():
                 checked = 1
             try:
                 command = f"UPDATE adatok SET szam='{request.form['Szamlaszam']}', nev='{request.form['Megrendeloneve']}', osszeg={request.form['Osszeg']},  kiallitas='{request.form['Kiallitas']}', hatarido='{request.form['Hatarido']}', teljesitve='{checked}', befizetes='{request.form['Befizetes']}' WHERE szam='{global_id}'"
-                print(request.form['Befizetes'])
                 cur.execute(command)
                 mysql.connection.commit()
                 cur.close()
@@ -82,22 +81,54 @@ def bills():
             return redirect(url_for("bills"))
 
 
-@app.route("/companies")
+@app.route("/companies",methods=["GET", "POST"])
 def companies():
-    cur = mysql.connection.cursor()
-    now = int(datetime.now().strftime("%Y"))
-    print(now)
-    now_str = str(int(now))+"-01-01"
-    next_str = str(int(now)+1)+"-01-01"
-    print(next_str)
-    resultValue = cur.execute(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
-    if resultValue>0:
-        userDetails = cur.fetchall()
-        line_number = range(len(userDetails)+1)[-1]
-        cur.close()
-        return render_template('companies.html',userDetails=userDetails,line=line_number)
+    if request.method == "GET":
+        cur = mysql.connection.cursor()
+        now = int(datetime.now().strftime("%Y"))
+        print(now)
+        now_str = str(int(now))+"-01-01"
+        next_str = str(int(now)+1)+"-01-01"
+        print(next_str)
+        resultValue = cur.execute(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
+        cursor = mysql.connection.cursor()
+        cursor.execute(f"SELECT year(befizetes) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(befizetes) order by year(befizetes) desc;")
+        years = cursor.fetchall()
+        year_string = []
+        for item in years:
+            year_string.append(str(item[0]))
+        print(type(year_string[0][0]))
+        if resultValue>0:
+            userDetails = cur.fetchall()
+            line_number = range(len(userDetails)+1)[-1]
+            cur.close()
+            selected_date = now
+            return render_template('companies.html',userDetails=userDetails,line=line_number,years=year_string,now = str(selected_date))
+        else:
+            return redirect(url_for("bills_insert"))
     else:
-        return redirect(url_for("bills_insert"))
+        print(request.form["a"])
+        got_year = request.form["a"]
+        cur = mysql.connection.cursor()
+        print(f"a{type(got_year)}")
+        now_str = str(int(got_year))+"-01-01"
+        next_str = str(int(got_year)+1)+"-01-01"
+        print(next_str)
+        resultValue = cur.execute(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
+        cursor = mysql.connection.cursor()
+        cursor.execute(f"SELECT year(befizetes) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(befizetes) order by year(befizetes) desc;")
+        years = cursor.fetchall()
+        year_string = []
+        for item in years:
+            year_string.append(str(item[0]))
+        print(type(year_string[0][0]))
+        if resultValue>0:
+            userDetails = cur.fetchall()
+            line_number = range(len(userDetails)+1)[-1]
+            cur.close()
+            return render_template('companies.html',userDetails=userDetails,line=line_number,years=year_string,now = got_year)
+        else:
+            return redirect(url_for("bills_insert"))
 
 
 @app.route("/processUserInfo/<string:userInfo>", methods=["POST"])
