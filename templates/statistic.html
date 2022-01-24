@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="hu">
+  <head>
+    <meta charset="utf-8">
+    <title>Számlázás</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../static/companies.css">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="btn btn-primary" href="http://127.0.0.1:5000/bills_insert">Számla bevitele</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="btn btn-primary" href="http://127.0.0.1:5000/bills">Számlák</a>
+              </li>
+              <li class="nav-item">
+                <a class="btn btn-primary" href="http://127.0.0.1:5000/companies">Cégek</a>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="container">
+      <form method="POST" action="/companies">
+        <select id="my-select" name="a" class="form-select" aria-label="Default select example">
+        </select>
+        <button type="submit" class="btn btn-primary">Betöltés</button>
+      </form>
+      <div class="row">
+        <div class="datas table-responsive">
+            <table class="table table-hover tablecenterheadCSS" id="table">
+              <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Január</th>
+                    <th scope="col">Február</th>
+                    <th scope="col">Március</th>
+                    <th scope="col">Április</th>
+                    <th scope="col">Május</th>
+                    <th scope="col">Június</th>
+                    <th scope="col">Július</th>
+                    <th scope="col">Augusztus</th>
+                    <th scope="col">Szeptember</th>
+                    <th scope="col">Október</th>
+                    <th scope="col">November</th>
+                    <th scope="col">December</th>
+                </tr>
+              </thead>
+              <tbody>
+                    <tr>
+                        <td></td>
+                        <td>2021</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td>2022</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Számlázott tételek</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Kevesebb több előzőhöz képest</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Teljesített %-ban előzőhöz képest</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Fizetés kb 60%-a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                        <td>a</td>
+                    </tr>
+              </tbody>
+            </table>
+        </div>
+      </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+</body>
+</html>

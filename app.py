@@ -131,6 +131,18 @@ def companies():
             return redirect(url_for("bills_insert"))
 
 
+@app.route("/statistic",methods=["GET", "POST"])
+def statistic():
+    """
+    Szükség van:
+        Táblázatban szereplő évekre
+        Adott évek kereseteire hónapokkal csoportosítva
+
+        Működési elv ugyanaz lesz mint a companies-nál
+    """
+    return render_template("statistic.html")
+
+
 @app.route("/processUserInfo/<string:userInfo>", methods=["POST"])
 def processUserInfo (userInfo):
     userInfo = json.loads(userInfo)
