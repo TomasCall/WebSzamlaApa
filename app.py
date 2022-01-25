@@ -140,6 +140,10 @@ def statistic():
 
         Működési elv ugyanaz lesz mint a companies-nál
     """
+    #SELECT sum(osszeg),month(befizetes) FROM adatok WHERE year(befizetes)=2020 group by month(befizetes);
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT ")
+    years = cursor.fetchall()
     return render_template("statistic.html")
 
 
