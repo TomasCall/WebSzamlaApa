@@ -6,6 +6,8 @@ from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 import json
 
+from itsdangerous import exc
+
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -133,46 +135,94 @@ def companies():
 
 @app.route("/statistic",methods=["GET", "POST"])
 def statistic():
-    """
-    Szükség van:
-        Táblázatban szereplő évekre
-        Adott évek kereseteire hónapokkal csoportosítva
+    if request.method == "GET":
+        cursor = mysql.connection.cursor()
+        cursor.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)) from adatok) group by month(kiallitas) ")
+        years_bigger = cursor.fetchall()
+        cursor.close()
+        print(years_bigger[0][1])
+        just_years_bigger = [0,0,0,0,0,0,0,0,0,0,0,0]
+        for item in years_bigger:
+            just_years_bigger[item[1]-1]=int(item[0])
 
-        Működési elv ugyanaz lesz mint a companies-nál
-    """
-    #SELECT sum(osszeg),month(befizetes) FROM adatok WHERE year(befizetes)=2020 group by month(befizetes);
-    cursor = mysql.connection.cursor()
-    cursor.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)) from adatok) group by month(kiallitas) ")
-    years_bigger = cursor.fetchall()
-    cursor.close()
+        cursor_second = mysql.connection.cursor()
+        cursor_second.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)-1) from adatok) group by month(kiallitas) ")
+        years_smaller = cursor_second.fetchall()
+        cursor_second.close()
 
-    just_years_bigger =[]
-    for item in years_bigger:
-        just_years_bigger.append(int(item[0]))
-    if len(just_years_bigger) <12:
-        for i in range(12-len(years_bigger)):
-            just_years_bigger.append(0)
-
-    cursor_second = mysql.connection.cursor()
-    cursor_second.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)-1) from adatok) group by month(kiallitas) ")
-    years_smaller = cursor_second.fetchall()
-    cursor_second.close()
-
-    just_years_smaller =[]
-    for item in years_smaller:
-        just_years_smaller.append(int(item[0]))
-    if len(just_years_smaller) <12:
-        for i in range(12-len(years_smaller)):
-            just_years_smaller.append(0)
+        just_years_smaller = [0,0,0,0,0,0,0,0,0,0,0,0]
+        for item in years_smaller:
+            just_years_smaller[item[1]-1]=int(item[0])
 
 
-    sixty_percents = []
-    for item in just_years_bigger:
-        sixty_percents.append(round(item*0.6))
+        sixty_percents = []
+        for item in just_years_bigger:
+            sixty_percents.append(round(item*0.6))
 
+        comparison_percents = []
+        for i in range(12):
+            if just_years_smaller[i] !=0:
+                comparison_percents.append(round(((just_years_bigger[i]-just_years_smaller[i])/just_years_smaller[i])*100))
+            else:
+                comparison_percents.append(-100)
 
-    return render_template("statistic.html",bigger_year=just_years_bigger,just_years_smaller=just_years_smaller,sixty_percents=sixty_percents)
+        cursor_third =  mysql.connection.cursor()
+        cursor_third.execute(f"SELECT year(kiallitas) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(kiallitas) order by year(kiallitas) desc;")
+        years_for_select = cursor_third.fetchall()
+        cursor_third.close()
+        year_string = []
+        for item in years_for_select:
+            year_string.append(str(item[0]))
+        first = sum(just_years_bigger)
+        second = sum(just_years_smaller)
+        third = first-second
+        fourth = sum(sixty_percents)
+        return render_template("statistic.html",bigger_year=just_years_bigger,just_years_smaller=just_years_smaller,sixty_percents=sixty_percents,comparison_percents=comparison_percents,years=year_string,now=year_string[0],before=int(year_string[0])-1,first=first,second=second,third=third,fourth=fourth)
+    else:
+        selected_year = int(request.form["a"])
+        cursor = mysql.connection.cursor()
+        cursor.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year} group by month(kiallitas)")
+        years_bigger = cursor.fetchall()
+        cursor.close()
 
+        just_years_bigger = [0,0,0,0,0,0,0,0,0,0,0,0]
+        for item in years_bigger:
+            just_years_bigger[item[1]-1]=int(item[0])
+
+        cursor_second = mysql.connection.cursor()
+        cursor_second.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year-1} group by month(kiallitas)")
+        years_smaller = cursor_second.fetchall()
+        print(type(years_smaller[0][1]))
+        cursor_second.close()
+        print(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year-1} group by month(kiallitas)")
+        just_years_smaller = [0,0,0,0,0,0,0,0,0,0,0,0]
+        for item in years_smaller:
+            just_years_smaller[item[1]-1]=int(item[0])
+
+        print(years_smaller)
+        sixty_percents = []
+        for item in just_years_bigger:
+            sixty_percents.append(round(item*0.6))
+
+        comparison_percents = []
+        for i in range(12):
+            if just_years_smaller[i] !=0:
+                comparison_percents.append(round(((just_years_bigger[i]-just_years_smaller[i])/just_years_smaller[i])*100))
+            else:
+                comparison_percents.append(-100)
+
+        cursor_third =  mysql.connection.cursor()
+        cursor_third.execute(f"SELECT year(kiallitas) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(kiallitas) order by year(kiallitas) desc;")
+        years_for_select = cursor_third.fetchall()
+        cursor_third.close()
+        year_string = []
+        for item in years_for_select:
+            year_string.append(str(item[0]))
+        first = sum(just_years_bigger)
+        second = sum(just_years_smaller)
+        third = first-second
+        fourth = sum(sixty_percents)
+        return render_template("statistic.html",bigger_year=just_years_bigger,just_years_smaller=just_years_smaller,sixty_percents=sixty_percents,comparison_percents=comparison_percents,years=year_string,now=str(selected_year),before=selected_year-1,first=first,second=second,third=third,fourth=fourth)
 
 @app.route("/processUserInfo/<string:userInfo>", methods=["POST"])
 def processUserInfo (userInfo):

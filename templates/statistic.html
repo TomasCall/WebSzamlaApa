@@ -30,9 +30,16 @@
     </nav>
 
 
-    <div class="container">
-      <form method="POST" action="/companies">
+    <div>
+      <form method="POST" action="/statistic">
         <select id="my-select" name="a" class="form-select" aria-label="Default select example">
+          {% for i in years %}
+          {% if i == now %}
+            <option selected value="{{i}}">{{i}}</option>
+          {% else %}
+            <option value="{{i}}">{{i}}</option>
+          {% endif %}
+        {% endfor %}
         </select>
         <button type="submit" class="btn btn-primary">Betöltés</button>
       </form>
@@ -54,60 +61,46 @@
                     <th scope="col">Október</th>
                     <th scope="col">November</th>
                     <th scope="col">December</th>
+                    <th scope="col">Összesen</th>
                 </tr>
               </thead>
               <tbody>
-                    <tr>
-                        <td>2021</td>
-                        <!--
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        -->
+                    <tr id="orange">
+                        <td>{{before}}</td>
                         {% for item in just_years_smaller %}
-                            <td>{{item}}</td>
+                            <td>{{item}} Ft</td>
                         {% endfor %}
+                        <td>{{second}} Ft</td>
                     </tr>
 
-                    <tr>
-                        <td>2022</td>
+                    <tr id="blue">
+                        <td>{{now}}</td>
                         {% for item in bigger_year %}
-                            <td>{{item}}</td>
+                            <td>{{item}} Ft</td>
                         {% endfor %}
+                        <td>{{first}} Ft</td>
                     </tr>
 
-                    <tr>
-                        <td>Kevesebb több előzőhöz képest</td>
+                    <tr id="green">
+                        <td>Kevesebb több {{before}}-hez képest</td>
                         {% for i in range(12) %}
-                        <td>{{bigger_year[i]-just_years_smaller[i]}}</td>
+                        <td>{{bigger_year[i]-just_years_smaller[i]}} Ft</td>
                         {% endfor %}
+                        <td>{{third}} Ft</td>
                     </tr>
-                    <tr>
-                        <td>Teljesített %-ban előzőhöz képest</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
+                    <tr id="red">
+                        <td>Teljesített %-ban {{before}}-hez képest</td>
+                        {% for item in comparison_percents %}
+                        <td>{{item}}%</td>
+                        {% endfor %}
+                        <td></td>
                     </tr>
-                    <tr>
+                    <tr id="gray">
                         <td>Fizetés kb 60%-a</td>
                         {% for item in sixty_percents %}
-                        <td>{{item}}</td>
+                        <td>{{item}} Ft</td>
                         {% endfor %}
+                        <td>{{fourth}} Ft</td>
                     </tr>
               </tbody>
             </table>
