@@ -7,6 +7,47 @@ body{
 .orange{
     background-color: #fd7e14;
 }
+/*
+table
+{
+ margin-top: 2%;
+ background-color: white;
+ text-align:center;
+ table-layout: fixed;
+}
+
+thead
+{
+    background-color: rgb(13, 110, 253);
+    color: white;
+    font-size: 92%;
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+td
+{
+    font-size: 80%;
+    display: table-cell;
+}
+
+tbody
+{
+    display:block;
+    max-height: 820px ;
+    overflow-y:scroll;
+    
+}
+
+
+table tbody tr
+{ 
+    display:table; 
+    width:100%; 
+    table-layout:fixed; 
+}
+*/
+
 table
 {
  margin-top: 2%;

@@ -142,9 +142,36 @@ def statistic():
     """
     #SELECT sum(osszeg),month(befizetes) FROM adatok WHERE year(befizetes)=2020 group by month(befizetes);
     cursor = mysql.connection.cursor()
-    cursor.execute(f"SELECT ")
-    years = cursor.fetchall()
-    return render_template("statistic.html")
+    cursor.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)) from adatok) group by month(kiallitas) ")
+    years_bigger = cursor.fetchall()
+    cursor.close()
+
+    just_years_bigger =[]
+    for item in years_bigger:
+        just_years_bigger.append(int(item[0]))
+    if len(just_years_bigger) <12:
+        for i in range(12-len(years_bigger)):
+            just_years_bigger.append(0)
+
+    cursor_second = mysql.connection.cursor()
+    cursor_second.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)-1) from adatok) group by month(kiallitas) ")
+    years_smaller = cursor_second.fetchall()
+    cursor_second.close()
+
+    just_years_smaller =[]
+    for item in years_smaller:
+        just_years_smaller.append(int(item[0]))
+    if len(just_years_smaller) <12:
+        for i in range(12-len(years_smaller)):
+            just_years_smaller.append(0)
+
+
+    sixty_percents = []
+    for item in just_years_bigger:
+        sixty_percents.append(round(item*0.6))
+
+
+    return render_template("statistic.html",bigger_year=just_years_bigger,just_years_smaller=just_years_smaller,sixty_percents=sixty_percents)
 
 
 @app.route("/processUserInfo/<string:userInfo>", methods=["POST"])

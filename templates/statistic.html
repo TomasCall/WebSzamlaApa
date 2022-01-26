@@ -5,7 +5,7 @@
     <title>Számlázás</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="../static/companies.css">
+    <link rel="stylesheet" type="text/css" href="../static/statistic.css">
   </head>
 
   <body>
@@ -58,8 +58,8 @@
               </thead>
               <tbody>
                     <tr>
-                        <td></td>
                         <td>2021</td>
+                        <!--
                         <td>a</td>
                         <td>a</td>
                         <td>a</td>
@@ -70,52 +70,26 @@
                         <td>a</td>
                         <td>a</td>
                         <td>a</td>
+                        -->
+                        {% for item in just_years_smaller %}
+                            <td>{{item}}</td>
+                        {% endfor %}
                     </tr>
 
                     <tr>
-                        <td></td>
                         <td>2022</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
+                        {% for item in bigger_year %}
+                            <td>{{item}}</td>
+                        {% endfor %}
                     </tr>
+
                     <tr>
-                        <td></td>
-                        <td>Számlázott tételek</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                    </tr>
-                    <tr>
-                        <td></td>
                         <td>Kevesebb több előzőhöz képest</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
+                        {% for i in range(12) %}
+                        <td>{{bigger_year[i]-just_years_smaller[i]}}</td>
+                        {% endfor %}
                     </tr>
                     <tr>
-                        <td></td>
                         <td>Teljesített %-ban előzőhöz képest</td>
                         <td>a</td>
                         <td>a</td>
@@ -127,20 +101,13 @@
                         <td>a</td>
                         <td>a</td>
                         <td>a</td>
+                        <td>a</td>
                     </tr>
                     <tr>
-                        <td></td>
                         <td>Fizetés kb 60%-a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
-                        <td>a</td>
+                        {% for item in sixty_percents %}
+                        <td>{{item}}</td>
+                        {% endfor %}
                     </tr>
               </tbody>
             </table>
