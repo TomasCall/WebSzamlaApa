@@ -21,7 +21,7 @@ app.config['MYSQL_PASSWORD'] = ""
 app.config['MYSQL_DB'] = "szamla"
 
 mysql = MySQL(app)
-#asd
+#dsa
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return redirect(url_for("bills_insert"))
