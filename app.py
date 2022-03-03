@@ -11,6 +11,7 @@ from itsdangerous import exc
 #
 #
 #
+#
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
