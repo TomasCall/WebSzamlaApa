@@ -59,7 +59,6 @@ def bills():
         now_str = str(int(now))+"-01-01"
         next_str = str(int(now)+1)+"-01-01"
         user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,szam")
-        print(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,szam")
         if len(user_details)>0:
             line_number = len(user_details)
             years = get_years("kiallitas")
@@ -67,23 +66,33 @@ def bills():
         else:
             return redirect(url_for("bills_insert"))
     elif request.method == "POST":
-        if request.form["Szamlaszam"] != "" and  request.form["Megrendeloneve"] != "" and request.form["Osszeg"] != None and request.form["Kiallitas"] != "" and  request.form["Hatarido"] != "":
-            cur = mysql.connection.cursor()
-            checked = 0
-            if request.form.get("Teljesitve") != None:
-                checked = 1
-            try:
-                command = f"UPDATE adatok SET szam='{request.form['Szamlaszam']}', nev='{request.form['Megrendeloneve']}', osszeg={request.form['Osszeg']},  kiallitas='{request.form['Kiallitas']}', hatarido='{request.form['Hatarido']}', teljesitve='{checked}', befizetes='{request.form['Befizetes']}' WHERE szam='{global_id}'"
-                cur.execute(command)
-                mysql.connection.commit()
-                cur.close()
-                return redirect(url_for("bills"))
-            except:
+        print(f"{request.form}")
+        if len(request.form) != 1:
+            if request.form["Szamlaszam"] != "" and  request.form["Megrendeloneve"] != "" and request.form["Osszeg"] != None and request.form["Kiallitas"] != "" and  request.form["Hatarido"] != "":
+                cur = mysql.connection.cursor()
+                checked = 0
+                if request.form.get("Teljesitve") != None:
+                    checked = 1
+                try:
+                    command = f"UPDATE adatok SET szam='{request.form['Szamlaszam']}', nev='{request.form['Megrendeloneve']}', osszeg={request.form['Osszeg']},  kiallitas='{request.form['Kiallitas']}', hatarido='{request.form['Hatarido']}', teljesitve='{checked}', befizetes='{request.form['Befizetes']}' WHERE szam='{global_id}'"
+                    cur.execute(command)
+                    mysql.connection.commit()
+                    cur.close()
+                    return redirect(url_for("bills"))
+                except:
+                    return redirect(url_for("bills"))
+            else:
                 return redirect(url_for("bills"))
         else:
-            return redirect(url_for("bills"))
-    else:
-        pass
+            print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            years = get_years("kiallitas")
+            got_year = request.form["a"]
+            print(f"a{type(got_year)}-------------------------")
+            now_str = str(int(got_year))+"-01-01"
+            next_str = str(int(got_year)+1)+"-01-01"
+            user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,szam")
+            return render_template('bills.html',user_details=user_details,line=len(user_details),today=date.today().strftime('%Y-%m-%d'),years=years,now=got_year)
+
 
 
 @app.route("/companies",methods=["GET", "POST"])
