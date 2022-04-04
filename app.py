@@ -52,19 +52,21 @@ def bills_insert():
         return render_template("bills_insert.html",names=names)
 
 
-@app.route("/bills", methods=["GET", "POST"])
+@app.route("/bills", methods=["GET", "POST","PUT"])
 def bills():
     if request.method == "GET":
-        cur = mysql.connection.cursor()
-        resultValue = cur.execute(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok order by teljesitve,szam")
-        if resultValue>0:
-            userDetails = cur.fetchall()
-            line_number = len(userDetails)
-            cur.close()
-            return render_template('bills.html',userDetails=userDetails,line=line_number,today=date.today().strftime('%Y-%m-%d'))
+        now = int(datetime.now().strftime("%Y"))
+        now_str = str(int(now))+"-01-01"
+        next_str = str(int(now)+1)+"-01-01"
+        user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,szam")
+        print(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,szam")
+        if len(user_details)>0:
+            line_number = len(user_details)
+            years = get_years("kiallitas")
+            return render_template('bills.html',user_details=user_details,line=line_number,today=date.today().strftime('%Y-%m-%d'),years=years)
         else:
             return redirect(url_for("bills_insert"))
-    else:
+    elif request.method == "POST":
         if request.form["Szamlaszam"] != "" and  request.form["Megrendeloneve"] != "" and request.form["Osszeg"] != None and request.form["Kiallitas"] != "" and  request.form["Hatarido"] != "":
             cur = mysql.connection.cursor()
             checked = 0
@@ -80,6 +82,8 @@ def bills():
                 return redirect(url_for("bills"))
         else:
             return redirect(url_for("bills"))
+    else:
+        pass
 
 
 @app.route("/companies",methods=["GET", "POST"])
@@ -100,11 +104,11 @@ def companies():
             year_string.append(str(item[0]))
         print(type(year_string[0][0]))
         if resultValue>0:
-            userDetails = cur.fetchall()
-            line_number = range(len(userDetails)+1)[-1]
+            user_details = cur.fetchall()
+            line_number = range(len(user_details)+1)[-1]
             cur.close()
             selected_date = now
-            return render_template('companies.html',userDetails=userDetails,line=line_number,years=year_string,now = str(selected_date))
+            return render_template('companies.html',user_details=user_details,line=line_number,years=year_string,now = str(selected_date))
         else:
             return redirect(url_for("bills_insert"))
     else:
@@ -124,10 +128,10 @@ def companies():
             year_string.append(str(item[0]))
         print(type(year_string[0][0]))
         if resultValue>0:
-            userDetails = cur.fetchall()
-            line_number = range(len(userDetails)+1)[-1]
+            user_details = cur.fetchall()
+            line_number = range(len(user_details)+1)[-1]
             cur.close()
-            return render_template('companies.html',userDetails=userDetails,line=line_number,years=year_string,now = got_year)
+            return render_template('companies.html',user_details=user_details,line=line_number,years=year_string,now = got_year)
         else:
             return redirect(url_for("bills_insert"))
 
@@ -230,6 +234,24 @@ def processUserInfo (userInfo):
     global_id = userInfo['global_id']
     print(global_id)
     return "Good"
+
+
+def get_years(name_of_year):
+    years = my_msql_executer(f"SELECT year({name_of_year}) FROM adatok WHERE befizetes is not null and {name_of_year} != 0 GROUP BY year({name_of_year}) order by year({name_of_year}) desc;")
+    year_string = []
+    for item in years:
+        year_string.append(str(item[0]))
+    return year_string
+
+
+def my_msql_executer(command):
+    cursor = mysql.connection.cursor()
+    #cursor.execute(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok where kiallitas between {this_year} and {nex_year} order by teljesitve,szam")
+    cursor.execute(command)
+    datas = cursor.fetchall()
+    cursor.close()
+    return datas
+
 
 
 if __name__ == '__main__':
