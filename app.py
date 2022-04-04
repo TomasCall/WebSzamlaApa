@@ -7,7 +7,6 @@ from flask_bcrypt import Bcrypt
 import json
 
 from itsdangerous import exc
-#FINISHED!!
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -20,6 +19,8 @@ app.config['MYSQL_PASSWORD'] = ""
 app.config['MYSQL_DB'] = "szamla"
 
 mysql = MySQL(app)
+
+selected_year = int(datetime.now().strftime("%Y"))
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -54,15 +55,17 @@ def bills_insert():
 
 @app.route("/bills", methods=["GET", "POST","PUT"])
 def bills():
+    global selected_year
     if request.method == "GET":
-        now = int(datetime.now().strftime("%Y"))
-        now_str = str(int(now))+"-01-01"
-        next_str = str(int(now)+1)+"-01-01"
-        user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,szam")
+        print(selected_year)
+        now_str = str(int(selected_year))+"-01-01"
+        next_str = str(int(selected_year)+1)+"-01-01"
+        user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,kiallitas")
+        user_details = sorted(user_details,key=lambda col: col[0][0])
         if len(user_details)>0:
             line_number = len(user_details)
             years = get_years("kiallitas")
-            return render_template('bills.html',user_details=user_details,line=line_number,today=date.today().strftime('%Y-%m-%d'),years=years)
+            return render_template('bills.html',user_details=user_details,line=line_number,today=date.today().strftime('%Y-%m-%d'),years=years,now=str(selected_year))
         else:
             return redirect(url_for("bills_insert"))
     elif request.method == "POST":
@@ -84,13 +87,13 @@ def bills():
             else:
                 return redirect(url_for("bills"))
         else:
-            print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             years = get_years("kiallitas")
             got_year = request.form["a"]
-            print(f"a{type(got_year)}-------------------------")
+            selected_year = int(got_year)
             now_str = str(int(got_year))+"-01-01"
             next_str = str(int(got_year)+1)+"-01-01"
-            user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,szam")
+            user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,kiallitas")
+            user_details = sorted(user_details,key=lambda col: col[0][0])
             return render_template('bills.html',user_details=user_details,line=len(user_details),today=date.today().strftime('%Y-%m-%d'),years=years,now=got_year)
 
 
@@ -98,49 +101,32 @@ def bills():
 @app.route("/companies",methods=["GET", "POST"])
 def companies():
     if request.method == "GET":
-        cur = mysql.connection.cursor()
         now = int(datetime.now().strftime("%Y"))
         print(now)
         now_str = str(int(now))+"-01-01"
         next_str = str(int(now)+1)+"-01-01"
         print(next_str)
-        resultValue = cur.execute(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
-        cursor = mysql.connection.cursor()
-        cursor.execute(f"SELECT year(befizetes) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(befizetes) order by year(befizetes) desc;")
-        years = cursor.fetchall()
-        year_string = []
-        for item in years:
-            year_string.append(str(item[0]))
-        print(type(year_string[0][0]))
-        if resultValue>0:
-            user_details = cur.fetchall()
+        user_details = my_msql_executer(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
+        years = get_years("befizetes")#cursor.fetchall()
+        if len(user_details)>0:
             line_number = range(len(user_details)+1)[-1]
-            cur.close()
-            selected_date = now
-            return render_template('companies.html',user_details=user_details,line=line_number,years=year_string,now = str(selected_date))
+            selected_datee = now
+            return render_template('companies.html',user_details=user_details,line=line_number,years=years,now = str(selected_datee))
         else:
             return redirect(url_for("bills_insert"))
     else:
-        print(request.form["a"])
         got_year = request.form["a"]
-        cur = mysql.connection.cursor()
         print(f"a{type(got_year)}")
         now_str = str(int(got_year))+"-01-01"
         next_str = str(int(got_year)+1)+"-01-01"
         print(next_str)
-        resultValue = cur.execute(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
+        user_details = my_msql_executer(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
         cursor = mysql.connection.cursor()
         cursor.execute(f"SELECT year(befizetes) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(befizetes) order by year(befizetes) desc;")
-        years = cursor.fetchall()
-        year_string = []
-        for item in years:
-            year_string.append(str(item[0]))
-        print(type(year_string[0][0]))
-        if resultValue>0:
-            user_details = cur.fetchall()
+        years = get_years("befizetes")
+        if len(user_details)>0:
             line_number = range(len(user_details)+1)[-1]
-            cur.close()
-            return render_template('companies.html',user_details=user_details,line=line_number,years=year_string,now = got_year)
+            return render_template('companies.html',user_details=user_details,line=line_number,years=years,now = got_year)
         else:
             return redirect(url_for("bills_insert"))
 
@@ -148,20 +134,13 @@ def companies():
 @app.route("/statistic",methods=["GET", "POST"])
 def statistic():
     if request.method == "GET":
-        cursor = mysql.connection.cursor()
-        cursor.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)) from adatok) group by month(kiallitas) ")
-        years_bigger = cursor.fetchall()
-        cursor.close()
+        years_bigger = my_msql_executer(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)) from adatok) group by month(kiallitas) ")
         print(years_bigger[0][1])
         just_years_bigger = [0,0,0,0,0,0,0,0,0,0,0,0]
         for item in years_bigger:
             just_years_bigger[item[1]-1]=int(item[0])
 
-        cursor_second = mysql.connection.cursor()
-        cursor_second.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)-1) from adatok) group by month(kiallitas) ")
-        years_smaller = cursor_second.fetchall()
-        cursor_second.close()
-
+        years_smaller = my_msql_executer(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)=(Select max(year(kiallitas)-1) from adatok) group by month(kiallitas) ")
         just_years_smaller = [0,0,0,0,0,0,0,0,0,0,0,0]
         for item in years_smaller:
             just_years_smaller[item[1]-1]=int(item[0])
@@ -178,40 +157,27 @@ def statistic():
             else:
                 comparison_percents.append(-100)
 
-        cursor_third =  mysql.connection.cursor()
-        cursor_third.execute(f"SELECT year(kiallitas) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(kiallitas) order by year(kiallitas) desc;")
-        years_for_select = cursor_third.fetchall()
-        cursor_third.close()
-        year_string = []
-        for item in years_for_select:
-            year_string.append(str(item[0]))
+        years_for_select = get_years("kiallitas")
         first = sum(just_years_bigger)
         second = sum(just_years_smaller)
         third = first-second
         fourth = sum(sixty_percents)
-        return render_template("statistic.html",bigger_year=just_years_bigger,just_years_smaller=just_years_smaller,sixty_percents=sixty_percents,comparison_percents=comparison_percents,years=year_string,now=year_string[0],before=int(year_string[0])-1,first=first,second=second,third=third,fourth=fourth)
+        return render_template("statistic.html",bigger_year=just_years_bigger,just_years_smaller=just_years_smaller,sixty_percents=sixty_percents,comparison_percents=comparison_percents,years=years_for_select,now=years_for_select[0],before=int(years_for_select[0])-1,first=first,second=second,third=third,fourth=fourth)
     else:
         selected_year = int(request.form["a"])
-        cursor = mysql.connection.cursor()
-        cursor.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year} group by month(kiallitas)")
-        years_bigger = cursor.fetchall()
-        cursor.close()
 
+        years_bigger = my_msql_executer(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year} group by month(kiallitas)")
         just_years_bigger = [0,0,0,0,0,0,0,0,0,0,0,0]
         for item in years_bigger:
             just_years_bigger[item[1]-1]=int(item[0])
 
-        cursor_second = mysql.connection.cursor()
-        cursor_second.execute(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year-1} group by month(kiallitas)")
-        years_smaller = cursor_second.fetchall()
-        print(type(years_smaller[0][1]))
-        cursor_second.close()
-        print(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year-1} group by month(kiallitas)")
+
+        years_smaller = my_msql_executer(f"SELECT sum(osszeg),month(kiallitas) FROM adatok WHERE year(kiallitas)={selected_year-1} group by month(kiallitas)")
         just_years_smaller = [0,0,0,0,0,0,0,0,0,0,0,0]
         for item in years_smaller:
             just_years_smaller[item[1]-1]=int(item[0])
 
-        print(years_smaller)
+
         sixty_percents = []
         for item in just_years_bigger:
             sixty_percents.append(round(item*0.6))
@@ -223,13 +189,14 @@ def statistic():
             else:
                 comparison_percents.append(-100)
 
-        cursor_third =  mysql.connection.cursor()
-        cursor_third.execute(f"SELECT year(kiallitas) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(kiallitas) order by year(kiallitas) desc;")
-        years_for_select = cursor_third.fetchall()
-        cursor_third.close()
-        year_string = []
-        for item in years_for_select:
-            year_string.append(str(item[0]))
+        #cursor_third =  mysql.connection.cursor()
+        #cursor_third.execute(f"SELECT year(kiallitas) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(kiallitas) order by year(kiallitas) desc;")
+        #years_for_select = cursor_third.fetchall()
+        #cursor_third.close()
+        #year_string = []
+        #for item in years_for_select:
+        #    year_string.append(str(item[0]))
+        year_string = get_years("kiallitas")
         first = sum(just_years_bigger)
         second = sum(just_years_smaller)
         third = first-second
@@ -255,7 +222,6 @@ def get_years(name_of_year):
 
 def my_msql_executer(command):
     cursor = mysql.connection.cursor()
-    #cursor.execute(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok where kiallitas between {this_year} and {nex_year} order by teljesitve,szam")
     cursor.execute(command)
     datas = cursor.fetchall()
     cursor.close()
