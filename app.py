@@ -189,13 +189,6 @@ def statistic():
             else:
                 comparison_percents.append(-100)
 
-        #cursor_third =  mysql.connection.cursor()
-        #cursor_third.execute(f"SELECT year(kiallitas) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(kiallitas) order by year(kiallitas) desc;")
-        #years_for_select = cursor_third.fetchall()
-        #cursor_third.close()
-        #year_string = []
-        #for item in years_for_select:
-        #    year_string.append(str(item[0]))
         year_string = get_years("kiallitas")
         first = sum(just_years_bigger)
         second = sum(just_years_smaller)
@@ -227,7 +220,8 @@ def my_msql_executer(command):
     cursor.close()
     return datas
 
-
+#a
 
 if __name__ == '__main__':
     app.run(debug=True)
+
