@@ -220,7 +220,7 @@ def my_msql_executer(command):
     cursor.close()
     return datas
 
-#a
+
 
 if __name__ == '__main__':
     app.run(debug=True)
