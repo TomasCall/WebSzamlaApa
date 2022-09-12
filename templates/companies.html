@@ -59,31 +59,11 @@
               </thead>
               <tbody>
                 {% for i in range(line) %}
-                  {% if user_details[i][1] >= 800000 and user_details[i][1] < 1000000 %}
-                  <tr class="bg-warning p-2 text-white">
-                    <td> {{i+1}} </td>
-                    <td> {{user_details[i][0]}} </td>
-                    <td> {{user_details[i][1]}} </td>
-                  </tr>
-                  {% elif user_details[i][1] >= 1000000 and user_details[i][1] < 2700000 %}
-                  <tr class="orange p-2 text-white">
-                    <td> {{i+1}} </td>
-                    <td> {{user_details[i][0]}} </td>
-                    <td> {{user_details[i][1]}} </td>
-                  </tr>
-                  {% elif user_details[i][1]  >= 2700000 %}
-                  <tr class="bg-danger p-2 text-white">
-                    <td> {{i+1}} </td>
-                    <td> {{user_details[i][0]}} </td>
-                    <td> {{user_details[i][1]}} </td>
-                  </tr>
-                  {% else %}
                   <tr class="bg-success p-2 text-white"  onclick="getLine({{i+1}})">
                     <td> {{i+1}} </td>
                     <td> {{user_details[i][0]}} </td>
                     <td> {{user_details[i][1]}} </td>
                   </tr>
-                  {% endif %}
                 {% endfor %}
               </tbody>
             </table>
