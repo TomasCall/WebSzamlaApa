@@ -47,7 +47,7 @@ def bills_insert():
             return redirect(url_for("bills_insert"))
     else:
         cursor = mysql.connection.cursor()
-        cursor.execute(f"SELECT nev from adatok")
+        cursor.execute(f"SELECT distinct(nev) from adatok order by nev asc")
         names = cursor.fetchall()
         cursor.close()
         return render_template("bills_insert.html",names=names)
@@ -58,14 +58,21 @@ def bills():
     global selected_year
     if request.method == "GET":
         print(selected_year)
+        selected_year = int(datetime.now().strftime("%Y"))
         now_str = str(int(selected_year))+"-01-01"
         next_str = str(int(selected_year)+1)+"-01-01"
-        user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,kiallitas")
+        if selected_year == 2022:
+            user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '2022.09.01' and '2023.01.01' order by teljesitve,kiallitas")
+        else:
+            user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,kiallitas")
         user_details = sorted(user_details,key=lambda col: col[0][0])
         if len(user_details)>0:
             line_number = len(user_details)
             years = get_years("kiallitas")
-            return render_template('bills.html',user_details=user_details,line=line_number,today=date.today().strftime('%Y-%m-%d'),years=years,now=str(selected_year))
+            if selected_year == 2022:
+                return render_template('bills.html',user_details=user_details,line=line_number,today=date.today().strftime('%Y-%m-%d'),years=years,now="2022 Szeptember")
+            else:
+                return render_template('bills.html',user_details=user_details,line=line_number,today=date.today().strftime('%Y-%m-%d'),years=years,now=str(selected_year))
         else:
             return redirect(url_for("bills_insert"))
     elif request.method == "POST":
@@ -89,10 +96,14 @@ def bills():
         else:
             years = get_years("kiallitas")
             got_year = request.form["a"]
-            selected_year = int(got_year)
-            now_str = str(int(got_year))+"-01-01"
-            next_str = str(int(got_year)+1)+"-01-01"
-            user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,kiallitas")
+            print(got_year)
+            if got_year == "2022 Szeptember":
+                user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '2022.09.01' and '2023.01.01' order by teljesitve,kiallitas")
+            else:
+                selected_year = int(got_year)
+                now_str = str(int(got_year))+"-01-01"
+                next_str = str(int(got_year)+1)+"-01-01"
+                user_details = my_msql_executer(f"SELECT szam,nev,osszeg,kiallitas,hatarido,teljesitve,befizetes FROM adatok  where kiallitas between '{now_str}' and '{next_str}' order by teljesitve,kiallitas")
             user_details = sorted(user_details,key=lambda col: col[0][0])
             return render_template('bills.html',user_details=user_details,line=len(user_details),today=date.today().strftime('%Y-%m-%d'),years=years,now=got_year)
 
@@ -108,6 +119,7 @@ def companies():
         print(next_str)
         user_details = my_msql_executer(f"SELECT nev,sum(osszeg) From adatok where teljesitve = 1 and befizetes between '{now_str}' AND '{next_str}' group by nev order by sum(osszeg) desc")
         years = get_years("befizetes")#cursor.fetchall()
+        years.remove("2022 Szeptember")
         if len(user_details)>0:
             line_number = range(len(user_details)+1)[-1]
             selected_datee = now
@@ -124,6 +136,7 @@ def companies():
         cursor = mysql.connection.cursor()
         cursor.execute(f"SELECT year(befizetes) FROM adatok WHERE befizetes is not null and befizetes != 0 GROUP BY year(befizetes) order by year(befizetes) desc;")
         years = get_years("befizetes")
+        years.remove("2022 Szeptember")
         if len(user_details)>0:
             line_number = range(len(user_details)+1)[-1]
             return render_template('companies.html',user_details=user_details,line=line_number,years=years,now = got_year)
@@ -158,6 +171,7 @@ def statistic():
                 comparison_percents.append(-100)
 
         years_for_select = get_years("kiallitas")
+        years_for_select.remove("2022 Szeptember")
         first = sum(just_years_bigger)
         second = sum(just_years_smaller)
         third = first-second
@@ -190,6 +204,7 @@ def statistic():
                 comparison_percents.append(-100)
 
         year_string = get_years("kiallitas")
+        year_string.remove("2022 Szeptember")
         first = sum(just_years_bigger)
         second = sum(just_years_smaller)
         third = first-second
@@ -210,6 +225,8 @@ def get_years(name_of_year):
     year_string = []
     for item in years:
         year_string.append(str(item[0]))
+        if year_string[-1] == "2022":
+            year_string.append("2022 Szeptember")
     return year_string
 
 
